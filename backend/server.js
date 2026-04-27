@@ -5,6 +5,8 @@ const cors = require("cors");
 const authRoutes = require("./src/routes/authRoutes");
 const purchaseOrderRoutes = require("./src/routes/purchaseOrderRoutes");
 const uploadRoutes = require("./src/routes/uploadRoutes");
+const excelImportRoutes = require("./src/routes/excelImportRoutes");
+const chatRoutes = require("./src/routes/chatRoutes");
 const { errorHandler, notFound } = require("./src/middleware/errorMiddleware");
 const { ensureTableExists } = require("./src/services/purchaseOrderService");
 
@@ -21,6 +23,8 @@ app.get("/", (_req, res) => {
 app.use("/api/auth", authRoutes);
 app.use("/api/purchase-orders", purchaseOrderRoutes);
 app.use("/api/upload", uploadRoutes);
+app.use("/api/import-excel", excelImportRoutes);
+app.use("/api/chat", chatRoutes);
 
 app.use(notFound);
 app.use(errorHandler);

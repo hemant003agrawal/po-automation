@@ -1,4 +1,4 @@
-import { Box, Button, Stack, TextField } from "@mui/material";
+import { Box, Button, FormControl, InputLabel, MenuItem, Select, Stack, TextField } from "@mui/material";
 import type { PurchaseOrderFilters } from "../../api/purchaseOrderApi";
 
 type Props = {
@@ -6,9 +6,10 @@ type Props = {
   onChange: (filters: PurchaseOrderFilters) => void;
   onApply?: () => void;
   onClear?: () => void;
+  showCurrencyFilter?: boolean;
 };
 
-export default function FilterPanel({ filters, onChange, onApply, onClear }: Props) {
+export default function FilterPanel({ filters, onChange, onApply, onClear, showCurrencyFilter = true }: Props) {
   return (
     <Stack direction={{ xs: "column", md: "row" }} spacing={2} alignItems={{ xs: "stretch", md: "center" }}>
       <TextField
@@ -50,6 +51,21 @@ export default function FilterPanel({ filters, onChange, onApply, onClear }: Pro
         fullWidth
         onChange={(e) => onChange({ ...filters, buyer: e.target.value })}
       />
+      {showCurrencyFilter && (
+        <FormControl size="small" fullWidth>
+          <InputLabel id="currency-filter-label">Currency</InputLabel>
+          <Select
+            labelId="currency-filter-label"
+            label="Currency"
+            value={filters.currency ?? ""}
+            onChange={(e) => onChange({ ...filters, currency: e.target.value as "USD" | "GBP" | undefined })}
+          >
+            <MenuItem value="">All</MenuItem>
+            <MenuItem value="USD">USD ($)</MenuItem>
+            <MenuItem value="GBP">GBP (£)</MenuItem>
+          </Select>
+        </FormControl>
+      )}
       <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
         <Button variant="contained" onClick={onApply}>
           Apply

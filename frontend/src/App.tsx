@@ -3,8 +3,10 @@ import { Box, Button, Stack } from "@mui/material";
 import LoginPage from "./pages/LoginPage";
 import Dashboard from "./pages/Dashboard";
 import UploadPage from "./pages/UploadPage";
+import ExcelUploadPage from "./pages/ExcelUploadPage";
 import TablePage from "./pages/TablePage";
 import PrivateRoute from "./routes/PrivateRoute";
+import Chatbot from "./components/chatbot/Chatbot";
 import { useAuth } from "./hooks/useAuth";
 
 function App() {
@@ -43,6 +45,13 @@ function App() {
             Upload PDF
           </Button>
           <Button
+            variant={isActive("/import-excel") ? "contained" : "outlined"}
+            onClick={() => navigate("/import-excel")}
+            size="small"
+          >
+            Import Excel
+          </Button>
+          <Button
             variant={isActive("/table") ? "contained" : "outlined"}
             onClick={() => navigate("/table")}
             size="small"
@@ -60,10 +69,13 @@ function App() {
         <Route element={<PrivateRoute />}>
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/upload" element={<UploadPage />} />
+          <Route path="/import-excel" element={<ExcelUploadPage />} />
           <Route path="/table" element={<TablePage />} />
         </Route>
         <Route path="*" element={<Navigate to={isAuthenticated ? "/dashboard" : "/login"} replace />} />
       </Routes>
+
+      {isAuthenticated && <Chatbot />}
     </Box>
   );
 }
