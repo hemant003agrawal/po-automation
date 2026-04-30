@@ -300,7 +300,7 @@ export default function ExcelUploadPage() {
               )}
 
               {/* Successful Imports */}
-              {result.data.importedOrders.length > 0 && (
+              {result.data.importedOrders && result.data.importedOrders.length > 0 && (
                 <>
                   <Divider sx={{ my: 2 }} />
                   <Typography variant="subtitle2" sx={{ mb: 1 }}>
@@ -327,7 +327,7 @@ export default function ExcelUploadPage() {
               )}
 
               {/* Errors */}
-              {result.data.errors.length > 0 && (
+              {result.data.errors && result.data.errors.length > 0 && (
                 <>
                   <Divider sx={{ my: 2 }} />
                   <Typography variant="subtitle2" color="error" sx={{ mb: 1 }}>

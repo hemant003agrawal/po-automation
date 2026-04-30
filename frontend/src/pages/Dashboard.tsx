@@ -1,12 +1,14 @@
 import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import {
+  Backdrop,
   Box,
   Button,
   ButtonGroup,
   Card,
   CardContent,
   Chip,
+  CircularProgress,
   Divider,
   Grid,
   Stack,
@@ -59,24 +61,28 @@ const CalendarTodayIcon = () => (
 import { fetchAnalyticsSummary, type PurchaseOrderFilters, type EntityMetrics } from "../api/purchaseOrderApi";
 import FilterPanel from "../components/filters/FilterPanel";
 import ChartCard from "../components/charts/ChartCard";
-import Loader from "../components/common/Loader";
 
 type CurrencyView = "USD" | "GBP";
 
-// Format date: "22 June 2026 04:35 PM"
-function formatDateTime(dateValue: string | null | undefined) {
-  if (!dateValue) return "-";
-  const date = new Date(dateValue);
-  if (Number.isNaN(date.getTime())) return dateValue;
+// Format date to: 22 June 2026 04:35PM
+function formatDateToDisplay(dateString: string | null | undefined): string {
+  if (!dateString) return "N/A";
+  
+  const date = new Date(dateString);
+  if (Number.isNaN(date.getTime())) return dateString;
 
-  return new Intl.DateTimeFormat("en-GB", {
-    day: "2-digit",
-    month: "long",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-    hour12: true
-  }).format(date);
+  const day = date.getDate();
+  const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+  const month = monthNames[date.getMonth()];
+  const year = date.getFullYear();
+  
+  let hours = date.getHours();
+  const minutes = date.getMinutes().toString().padStart(2, "0");
+  const ampm = hours >= 12 ? "PM" : "AM";
+  hours = hours % 12;
+  hours = hours ? hours : 12;
+
+  return `${day} ${month} ${year} ${hours.toString().padStart(2, "0")}:${minutes}${ampm}`;
 }
 
 function formatCurrency(value: number, currency: CurrencyView) {
@@ -280,10 +286,31 @@ export default function Dashboard() {
     }));
   }, [summary, currencyView]);
 
-  if (isLoading) return <Loader />;
-
   return (
-    <Box sx={{ p: { xs: 2, md: 3 }, background: "linear-gradient(135deg, #f5f7fa 0%, #e4e8ec 100%)", minHeight: "100vh" }}>
+    <Box sx={{ p: { xs: 2, md: 3 }, background: "linear-gradient(135deg, #f5f7fa 0%, #e4e8ec 100%)", minHeight: "100vh", position: "relative" }}>
+      {/* Loading Backdrop - freezes screen during filter application */}
+      <Backdrop
+        open={isLoading}
+        sx={{
+          background: "rgba(255, 255, 255, 0.9)",
+          backdropFilter: "blur(8px)",
+          zIndex: (theme) => theme.zIndex.drawer + 1,
+          flexDirection: "column",
+          gap: 2
+        }}
+      >
+        <CircularProgress
+          size={60}
+          thickness={4}
+          sx={{
+            color: "#667eea",
+            filter: "drop-shadow(0 4px 8px rgba(102, 126, 234, 0.4))"
+          }}
+        />
+        <Typography variant="h6" sx={{ color: "#667eea", fontWeight: 600 }}>
+          Applying filters...
+        </Typography>
+      </Backdrop>
       {/* Header Section */}
       <Paper
         elevation={0}
@@ -356,14 +383,16 @@ export default function Dashboard() {
         </Stack>
       </Paper>
 
-      <FilterPanel
-        filters={draftFilters}
-        onChange={setDraftFilters}
-        onApply={() => setFilters(draftFilters)}
-        onClear={clearFilters}
-      />
+      <Box sx={{ mb: 3 }}>
+        <FilterPanel
+          filters={draftFilters}
+          onChange={setDraftFilters}
+          onApply={() => setFilters(draftFilters)}
+          onClear={clearFilters}
+        />
+      </Box>
 
-      <Grid container spacing={3} sx={{ mt: 1 }}>
+      <Grid container spacing={3}>
         {/* Summary Cards with Colorful Gradients */}
         <Grid size={{ xs: 12, sm: 6, lg: 3 }}>
           <StatCard
@@ -525,10 +554,10 @@ export default function Dashboard() {
                     />
                     <Box sx={{ ml: "auto", textAlign: "right" }}>
                       <Typography variant="body2" sx={{ fontWeight: 500, color: "#666" }}>
-                        Ex-Factory: <strong>{item.confirmedExFactoryDate}</strong>
+                        Ex-Factory: <strong>{formatDateToDisplay(item.confirmedExFactoryDate)}</strong>
                       </Typography>
                       <Typography variant="body2" sx={{ color: "#43e97b", fontWeight: 600 }}>
-                        → Delivery: <strong>{item.deliveryDate}</strong>
+                        → Delivery: <strong>{formatDateToDisplay(item.deliveryDate)}</strong>
                       </Typography>
                     </Box>
                   </Box>

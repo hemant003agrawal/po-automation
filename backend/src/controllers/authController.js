@@ -4,7 +4,8 @@ async function login(req, res, next) {
   try {
     const { email, password } = req.body;
 
-    if (email !== "test123@gmail.com" || password !== "123456") {
+    // Check credentials - updated to new admin credentials
+    if (email !== "Admin123@gmail.com" || password !== "Admin@123") {
       throw new AppError("Invalid email or password", 401);
     }
 

@@ -337,19 +337,17 @@ async function importExcel(req, res, next) {
       console.log("[ExcelImport] Temp file deleted:", tempFilePath);
     }
 
-    // Build response
+    // Build response - match frontend expected structure
+    const total = totalInserted + totalSkipped;
     res.status(201).json({
       success: true,
       message: `Import complete: ${totalInserted} orders imported, ${totalSkipped} skipped`,
       data: {
-        totalInserted,
-        totalSkipped,
-        sheets: allResults.map((r) => ({
-          sheetName: r.sheetName,
-          inserted: r.inserted,
-          skipped: r.skipped,
-          errors: r.errors.length
-        })),
+        total,
+        successful: totalInserted,
+        failed: allErrors.length,
+        skipped: totalSkipped,
+        importedOrders: [], // TODO: Track and return imported orders
         errors: allErrors.slice(0, 20) // Return first 20 errors only
       }
     });
